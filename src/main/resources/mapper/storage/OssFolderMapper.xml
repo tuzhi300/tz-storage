@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.storage.dao.OssFolderDao">
+
+    <resultMap id="ossFolderMap" type="net.kuper.tz.storage.entity.OssFolderEntity">
+        <result property="id" column="id"/>
+        <result property="userType" column="user_type"/>
+        <result property="userId" column="user_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="folder" column="folder"/>
+        <result property="folderType" column="folder_type"/>
+        <result property="rightType" column="right_type"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateUserType" column="update_user_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createUserType" column="create_user_type"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`user_type` ,
+        `t`.`user_id` ,
+        `t`.`parent_id` ,
+        `t`.`folder` ,
+        `t`.`folder_type` ,
+        `t`.`right_type` ,
+        `t`.`update_time` ,
+        `t`.`update_user_id` ,
+        `t`.`update_user_type` ,
+        `t`.`create_time` ,
+        `t`.`create_user_id` ,
+        `t`.`create_user_type` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from `sys_oss_folder` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="userType != null">
+            AND `t`.`user_type` = #{userType}
+        </if>
+        <if test="userId != null">
+            AND `t`.`user_id` = #{userId}
+        </if>
+        <if test="parentId != null">
+            AND `t`.`parent_id` = #{parentId}
+        </if>
+        <if test="folder != null and folder.trim() != ''">
+            AND `t`.`folder` LIKE concat('%',#{folder} ,'%')
+        </if>
+        <if test="folderType != null and folderType.trim() != ''">
+            AND `t`.`folder_type` LIKE concat('%',#{folderType} ,'%')
+        </if>
+        <if test="rightType != null">
+            AND `t`.`right_type` = #{rightType}
+        </if>
+        <if test="updateTime != null">
+            AND date_format(`t`.`update_time`,'%Y-%m-%d') = date_format(#{updateTime},'%Y-%m-%d')
+        </if>
+        <if test="updateUserId != null">
+            AND `t`.`update_user_id` = #{updateUserId}
+        </if>
+        <if test="updateUserType != null">
+            AND `t`.`update_user_type` = #{updateUserType}
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="createUserId != null">
+            AND `t`.`create_user_id` = #{createUserId}
+        </if>
+        <if test="createUserType != null">
+            AND `t`.`create_user_type` = #{createUserType}
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'userType' == sidx ">
+                        order by `t`.`user_type`
+                    </when>
+                    <when test="'userId' == sidx ">
+                        order by `t`.`user_id`
+                    </when>
+                    <when test="'parentId' == sidx ">
+                        order by `t`.`parent_id`
+                    </when>
+                    <when test="'folder' == sidx ">
+                        order by `t`.`folder`
+                    </when>
+                    <when test="'folderType' == sidx ">
+                        order by `t`.`folder_type`
+                    </when>
+                    <when test="'rightType' == sidx ">
+                        order by `t`.`right_type`
+                    </when>
+                    <when test="'updateTime' == sidx ">
+                        order by `t`.`update_time`
+                    </when>
+                    <when test="'updateUserId' == sidx ">
+                        order by `t`.`update_user_id`
+                    </when>
+                    <when test="'updateUserType' == sidx ">
+                        order by `t`.`update_user_type`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <when test="'createUserId' == sidx ">
+                        order by `t`.`create_user_id`
+                    </when>
+                    <when test="'createUserType' == sidx ">
+                        order by `t`.`create_user_type`
+                    </when>
+                    <when test="'deleteTime' == sidx ">
+                        order by `t`.`delete_time`
+                    </when>
+                    <otherwise>
+                        order by `t`.`create_time`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`create_time`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="ossFolderMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="ossFolderMap">
+        <include refid="select_normal"/>
+        WHERE t.delete_time is null
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+    <select id="queryByPath" parameterType="map" resultMap="ossFolderMap">
+        <include refid="select_normal"/>
+        WHERE t.delete_time is null
+        and t.user_id = #{userId}
+        and t.user_type = #{userType}
+        and t.folder = #{folder}
+        <choose>
+            <when test="parentId != null">
+                and `t`.`parent_id` = #{parentId}
+            </when>
+            <otherwise>
+                and `t`.`parent_id` is null
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.storage.entity.OssFolderUpdateEntity">
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_oss_folder`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="userType != null">
+                `user_type` ,
+            </if>
+            <if test="userId != null">
+                `user_id` ,
+            </if>
+            <if test="parentId != null">
+                `parent_id` ,
+            </if>
+            <if test="folder != null">
+                `folder` ,
+            </if>
+            <if test="folderType != null">
+                `folder_type` ,
+            </if>
+            <if test="rightType != null">
+                `right_type` ,
+            </if>
+            <if test="createUserId != null">
+                `create_user_id` ,
+            </if>
+            <if test="createUserType != null">
+                `create_user_type` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="userType != null">
+                #{userType} ,
+            </if>
+            <if test="userId != null">
+                #{userId} ,
+            </if>
+            <if test="parentId != null">
+                #{parentId} ,
+            </if>
+            <if test="folder != null">
+                #{folder} ,
+            </if>
+            <if test="folderType != null">
+                #{folderType} ,
+            </if>
+            <if test="rightType != null">
+                #{rightType} ,
+            </if>
+            <if test="createUserId != null">
+                #{createUserId} ,
+            </if>
+            <if test="createUserType != null">
+                #{createUserType} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.storage.entity.OssFolderUpdateEntity">
+        update `sys_oss_folder`
+        <set>
+            <if test="parentId != null">
+                `parent_id` = #{parentId} ,
+            </if>
+            <if test="folder != null">
+                `folder` = #{folder} ,
+            </if>
+            <if test="folderType != null">
+                `folder_type` = #{folderType} ,
+            </if>
+            <if test="rightType != null">
+                `right_type` = #{rightType} ,
+            </if>
+            `update_time` = now() ,
+            <if test="updateUserId != null">
+                `update_user_id` = #{updateUserId} ,
+            </if>
+            <if test="updateUserType != null">
+                `update_user_type` = #{updateUserType} ,
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_oss_folder` set delete_time = now() where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_oss_folder` set delete_time = now() where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

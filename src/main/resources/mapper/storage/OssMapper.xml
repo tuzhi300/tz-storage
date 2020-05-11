@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.storage.dao.OssDao">
+
+    <resultMap id="ossMap" type="net.kuper.tz.storage.entity.OssEntity">
+        <result property="id" column="id"/>
+        <result property="key" column="key"/>
+        <result property="folder" column="folder"/>
+        <result property="format" column="format"/>
+        <result property="size" column="size"/>
+        <result property="md5" column="md5"/>
+        <result property="originalMd5" column="original_md5"/>
+        <result property="sha1" column="sha1"/>
+        <result property="originalSha1" column="original_sha1"/>
+        <result property="planform" column="planform"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateUserType" column="update_user_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createUserType" column="create_user_type"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`key` ,
+        `t`.`folder` ,
+        `t`.`format` ,
+        `t`.`size` ,
+        `t`.`md5` ,
+        `t`.`original_md5` ,
+        `t`.`sha1` ,
+        `t`.`original_sha1` ,
+        `t`.`planform` ,
+        `t`.`update_time` ,
+        `t`.`update_user_id` ,
+        `t`.`update_user_type` ,
+        `t`.`create_time` ,
+        `t`.`create_user_id` ,
+        `t`.`create_user_type` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from  `sys_oss` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="key != null and key.trim() != ''">
+            AND `t`.`key` LIKE concat('%',#{key} ,'%')
+        </if>
+        <if test="folder != null and folder.trim() != ''">
+            AND `t`.`folder` = #{format}
+        </if>
+        <if test="format != null and format.trim() != ''">
+            AND `t`.`format` LIKE concat('%',#{format} ,'%')
+        </if>
+        <if test="size != null">
+            AND `t`.`size` = #{size}
+        </if>
+        <if test="md5 != null and md5.trim() != ''">
+            AND `t`.`md5` LIKE concat('%',#{md5} ,'%')
+        </if>
+        <if test="originalMd5 != null and originalMd5.trim() != ''">
+            AND `t`.`original_md5` LIKE concat('%',#{originalMd5} ,'%')
+        </if>
+        <if test="sha1 != null and sha1.trim() != ''">
+            AND `t`.`sha1` LIKE concat('%',#{sha1} ,'%')
+        </if>
+        <if test="originalSha1 != null and originalSha1.trim() != ''">
+            AND `t`.`original_sha1` LIKE concat('%',#{originalSha1} ,'%')
+        </if>
+        <if test="planform != null">
+            AND `t`.`planform` = #{planform}
+        </if>
+        <if test="updateTime != null">
+            AND date_format(`t`.`update_time`,'%Y-%m-%d') = date_format(#{updateTime},'%Y-%m-%d')
+        </if>
+        <if test="updateUserId != null and updateUserId.trim() != ''">
+            AND `t`.`update_user_id` LIKE concat('%',#{updateUserId} ,'%')
+        </if>
+        <if test="updateUserType != null">
+            AND `t`.`update_user_type` = #{updateUserType}
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="createUserId != null and createUserId.trim() != ''">
+            AND `t`.`create_user_id` LIKE concat('%',#{createUserId} ,'%')
+        </if>
+        <if test="createUserType != null">
+            AND `t`.`create_user_type` = #{createUserType}
+        </if>
+        <if test="deleteTime != null">
+            AND date_format(`t`.`delete_time`,'%Y-%m-%d') = date_format(#{deleteTime},'%Y-%m-%d')
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'key' == sidx ">
+                        order by `t`.`key`
+                    </when>
+                    <when test="'folder' == sidx ">
+                        order by `t`.`folder`
+                    </when>
+                    <when test="'format' == sidx ">
+                        order by `t`.`format`
+                    </when>
+                    <when test="'size' == sidx ">
+                        order by `t`.`size`
+                    </when>
+                    <when test="'md5' == sidx ">
+                        order by `t`.`md5`
+                    </when>
+                    <when test="'originalMd5' == sidx ">
+                        order by `t`.`original_md5`
+                    </when>
+                    <when test="'sha1' == sidx ">
+                        order by `t`.`sha1`
+                    </when>
+                    <when test="'originalSha1' == sidx ">
+                        order by `t`.`original_sha1`
+                    </when>
+                    <when test="'planform' == sidx ">
+                        order by `t`.`planform`
+                    </when>
+                    <when test="'updateTime' == sidx ">
+                        order by `t`.`update_time`
+                    </when>
+                    <when test="'updateUserId' == sidx ">
+                        order by `t`.`update_user_id`
+                    </when>
+                    <when test="'updateUserType' == sidx ">
+                        order by `t`.`update_user_type`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <when test="'createUserId' == sidx ">
+                        order by `t`.`create_user_id`
+                    </when>
+                    <when test="'createUserType' == sidx ">
+                        order by `t`.`create_user_type`
+                    </when>
+                    <when test="'deleteTime' == sidx ">
+                        order by `t`.`delete_time`
+                    </when>
+                    <otherwise>
+                        order by `t`.`create_time`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`create_time`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="ossMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="ossMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+    <select id="queryBySign" parameterType="map" resultMap="ossMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        and t.md5 = #{md5}
+        and t.sha1 = #{sha1}
+        and t.planform = #{planform}
+        <if test="folder != null">
+           and  `t`.`folder` = #{folder}
+        </if>
+    </select>
+    <select id="queryByOriginalSign" parameterType="map" resultMap="ossMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        and t.original_md5 = #{originalMd5}
+        and t.original_sha1 = #{originalSha1}
+        and t.planform = #{planform}
+        <if test="folder != null">
+            and  `t`.`folder` = #{folder}
+        </if>
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.storage.entity.OssUpdateEntity" >
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_oss`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="key != null">
+                `key` ,
+            </if>
+            <if test="folder != null">
+                `folder` ,
+            </if>
+            <if test="format != null">
+                `format` ,
+            </if>
+            <if test="size != null">
+                `size` ,
+            </if>
+            <if test="md5 != null">
+                `md5` ,
+            </if>
+            <if test="originalMd5 != null">
+                `original_md5` ,
+            </if>
+            <if test="sha1 != null">
+                `sha1` ,
+            </if>
+            <if test="originalSha1 != null">
+                `original_sha1` ,
+            </if>
+            <if test="planform != null">
+                `planform` ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` ,
+            </if>
+            <if test="updateUserId != null">
+                `update_user_id` ,
+            </if>
+            <if test="updateUserType != null">
+                `update_user_type` ,
+            </if>
+            <if test="createTime != null">
+                `create_time` ,
+            </if>
+            <if test="createUserId != null">
+                `create_user_id` ,
+            </if>
+            <if test="createUserType != null">
+                `create_user_type` ,
+            </if>
+            <if test="deleteTime != null">
+                `delete_time` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="key != null">
+                #{key} ,
+            </if>
+            <if test="folder != null">
+                #{folder} ,
+            </if>
+            <if test="format != null">
+                #{format} ,
+            </if>
+            <if test="size != null">
+                #{size} ,
+            </if>
+            <if test="md5 != null">
+                #{md5} ,
+            </if>
+            <if test="originalMd5 != null">
+                #{originalMd5} ,
+            </if>
+            <if test="sha1 != null">
+                #{sha1} ,
+            </if>
+            <if test="originalSha1 != null">
+                #{originalSha1} ,
+            </if>
+            <if test="planform != null">
+                #{planform} ,
+            </if>
+            <if test="updateTime != null">
+                #{updateTime} ,
+            </if>
+            <if test="updateUserId != null">
+                #{updateUserId} ,
+            </if>
+            <if test="updateUserType != null">
+                #{updateUserType} ,
+            </if>
+            <if test="createTime != null">
+                #{createTime} ,
+            </if>
+            <if test="createUserId != null">
+                #{createUserId} ,
+            </if>
+            <if test="createUserType != null">
+                #{createUserType} ,
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.storage.entity.OssUpdateEntity">
+        update `sys_oss`
+        <set>
+            <if test="key != null">
+                `key` = #{key} ,
+            </if>
+            <if test="folder != null">
+                `folder` = #{folder} ,
+            </if>
+            <if test="format != null">
+                `format` = #{format} ,
+            </if>
+            <if test="size != null">
+                `size` = #{size} ,
+            </if>
+            <if test="md5 != null">
+                `md5` = #{md5} ,
+            </if>
+            <if test="originalMd5 != null">
+                `original_md5` = #{originalMd5} ,
+            </if>
+            <if test="sha1 != null">
+                `sha1` = #{sha1} ,
+            </if>
+            <if test="originalSha1 != null">
+                `original_sha1` = #{originalSha1} ,
+            </if>
+            <if test="planform != null">
+                `planform` = #{planform} ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` = #{updateTime} ,
+            </if>
+            <if test="updateUserId != null">
+                `update_user_id` = #{updateUserId} ,
+            </if>
+            <if test="updateUserType != null">
+                `update_user_type` = #{updateUserType} ,
+            </if>
+            <if test="createTime != null">
+                `create_time` = #{createTime} ,
+            </if>
+            <if test="createUserId != null">
+                `create_user_id` = #{createUserId} ,
+            </if>
+            <if test="createUserType != null">
+                `create_user_type` = #{createUserType} ,
+            </if>
+            <if test="deleteTime != null">
+                `delete_time` = #{deleteTime} ,
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_oss` set delete_time = now() where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_oss` set delete_time = now() where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

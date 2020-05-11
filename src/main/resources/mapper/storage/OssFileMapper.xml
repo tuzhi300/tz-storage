@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.storage.dao.OssFileDao">
+
+    <resultMap id="ossFileMap" type="net.kuper.tz.storage.entity.OssFileEntity">
+        <result property="id" column="id"/>
+        <result property="ossId" column="oss_id"/>
+        <result property="folderId" column="folder_id"/>
+        <result property="displayName" column="display_name"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`oss_id` ,
+        `t`.`folder_id` ,
+        `t`.`display_name` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from  `sys_oss_file` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="ossId != null and ossId.trim() != ''">
+            AND `t`.`oss_id` LIKE concat('%',#{ossId} ,'%')
+        </if>
+        <if test="folderId != null and folderId.trim() != ''">
+            AND `t`.`folder_id` LIKE concat('%',#{folderId} ,'%')
+        </if>
+        <if test="displayName != null and displayName.trim() != ''">
+            AND `t`.`display_name` LIKE concat('%',#{displayName} ,'%')
+        </if>
+        <if test="updateTime != null">
+            AND date_format(`t`.`update_time`,'%Y-%m-%d') = date_format(#{updateTime},'%Y-%m-%d')
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="deleteTime != null">
+            AND date_format(`t`.`delete_time`,'%Y-%m-%d') = date_format(#{deleteTime},'%Y-%m-%d')
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'ossId' == sidx ">
+                        order by `t`.`oss_id`
+                    </when>
+                    <when test="'folderId' == sidx ">
+                        order by `t`.`folder_id`
+                    </when>
+                    <when test="'displayName' == sidx ">
+                        order by `t`.`display_name`
+                    </when>
+                    <when test="'updateTime' == sidx ">
+                        order by `t`.`update_time`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <when test="'deleteTime' == sidx ">
+                        order by `t`.`delete_time`
+                    </when>
+                    <otherwise>
+                        order by `t`.`id`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`id`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="ossFileMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="ossFileMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.storage.entity.OssFileUpdateEntity" >
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_oss_file`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="ossId != null">
+                `oss_id` ,
+            </if>
+            <if test="folderId != null">
+                `folder_id` ,
+            </if>
+            <if test="displayName != null">
+                `display_name` ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` ,
+            </if>
+            <if test="createTime != null">
+                `create_time` ,
+            </if>
+            <if test="deleteTime != null">
+                `delete_time` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="ossId != null">
+                #{ossId} ,
+            </if>
+            <if test="folderId != null">
+                #{folderId} ,
+            </if>
+            <if test="displayName != null">
+                #{displayName} ,
+            </if>
+            <if test="updateTime != null">
+                #{updateTime} ,
+            </if>
+            <if test="createTime != null">
+                #{createTime} ,
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.storage.entity.OssFileUpdateEntity">
+        update `sys_oss_file`
+        <set>
+            <if test="ossId != null">
+                `oss_id` = #{ossId} ,
+            </if>
+            <if test="folderId != null">
+                `folder_id` = #{folderId} ,
+            </if>
+            <if test="displayName != null">
+                `display_name` = #{displayName} ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` = #{updateTime} ,
+            </if>
+            <if test="createTime != null">
+                `create_time` = #{createTime} ,
+            </if>
+            <if test="deleteTime != null">
+                `delete_time` = #{deleteTime} ,
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_oss_file` set delete_time = now() where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_oss_file` set delete_time = now() where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>
